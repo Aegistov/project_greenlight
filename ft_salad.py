@@ -207,6 +207,15 @@ def populateGraph():
 
     fig = dict(data=data, layout=layout)
     plotly.offline.plot(fig, filename = "humidity_graph.html")
+    graph_loc = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)),
+    "humidity_graph.html"
+    )
+    new_loc = "/templates/humidity_graph.html" #os.path.join(
+    # os.path.dirname(os.path.realpath(__file__)),
+    # "/templates/humidity_graph.html"
+    # )
+    os.rename(graph_loc, new_loc)
     return render_template('templates/humidity_graph.html')
 
 def hrlyAvg(data):
