@@ -1,0 +1,193 @@
+<HTML style="background-color: rgba(191, 128, 64, 0.6);">
+	<HEAD>
+		<link href="https://fonts.googleapis.com/css?family=Pacifico" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css?family=Space+Mono" rel="stylesheet">
+		<TITLE>Greenlight</TITLE>
+		<STYLE>
+			body {
+				font: 100% Helvetica, sans-serif;
+				overflow: hidden;
+			}
+			ul {
+				list-style-type: none;
+				position: fixed;
+				width:100%;
+				top:0;
+				margin: 0;
+				float: right;
+				padding: 1em 0 0 0;
+			}
+			li {
+				display: inline;
+				margin: 20px;
+				font-weight: bold;
+				font-size: 0.9em;
+			}
+			a {
+				text-decoration: none;
+				color: white;
+				display: inline-block;
+			}
+			.button {
+				border: solid 2px;
+				padding: 5px 10px 5px 10px;
+				border-radius: 2px;
+			}
+			.button:hover {
+				background: rgba(0, 0, 0, 0.2);
+			}
+			.row{
+				padding: 5% 15% 1% 0%;
+				display:flex;
+				justify-content:center;
+			}
+			.question{
+				position: relative;
+				height: 30%;
+				margin: 1%;
+			}
+			#quest{
+				font-family: "Courier New";
+				position: absolute;
+				top: 75%;
+				left: 0px;
+				right: 0px;
+				text-align: center;
+				font-size: 4.2vmin;
+				color: black;
+			}
+			.cell{
+				width: 90%;
+				height: 80%;
+				margin: 1%;
+			}
+			.tower
+			{
+				height: 100%;
+				width: auto;
+				background-image: ;
+				background-repeat: no-repeat;
+				position:absolute;
+			}
+			#plant
+			{
+				padding: 2% 0% 0% 0.5%;
+				height: 100%;
+				width: auto;
+				background-image: ;
+				background-repeat: no-repeat;
+				position:absolute;
+			}
+			#type{
+				width 50%;
+				position: absolute;
+				right: 3%;
+				margin-top: -4px;
+				text-align: right;
+				font-size: 10vmin;
+				color: rgba(255, 255, 255, 0.9);
+				font-family: 'Pacifico', cursive;
+			}
+			.cushion{
+				width 50%;
+				position: absolute;
+				right: 3%;
+			}
+			@-webkit-keyframes neon3 {
+				from {
+					text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #fff, 0 0 40px #000066, 0 0 70px #000066, 0 0 80px #000066, 0 0 100px #000066, 0 0 150px #000066;
+				}
+				to {
+					text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #000066, 0 0 35px #000066, 0 0 40px #000066, 0 0 50px #000066, 0 0 75px #000066;
+				}
+			}
+			.shake {
+				display:inline-block
+				}
+			@-webkit-keyframes spaceboots {
+				0% { -webkit-transform: translate(1px, 0.5px) rotate(0deg); }
+				10% { -webkit-transform: translate(-0.5px, -1px) rotate(-0.5deg); }
+				20% { -webkit-transform: translate(-1.5px, 0px) rotate(0.5deg); }
+				30% { -webkit-transform: translate(0px, 1px) rotate(0deg); }
+				40% { -webkit-transform: translate(0.5px, -0.5px) rotate(0.5deg); }
+				50% { -webkit-transform: translate(-0.5px, 1px) rotate(-0.5deg); }
+				60% { -webkit-transform: translate(-1.5px, 0.5px) rotate(0deg); }
+				70% { -webkit-transform: translate(1px, 0.5px) rotate(-0.5deg); }
+				80% { -webkit-transform: translate(-0.5px, -0.5px) rotate(0.5deg); }
+				90% { -webkit-transform: translate(1px, 1px) rotate(0deg); }
+				100% { -webkit-transform: translate(0.5px, -1px) rotate(-0.5deg); }
+			}
+			.shake:hover,
+			.shake:focus {
+				-webkit-animation-name: spaceboots;
+				-webkit-animation-duration: 0.7s;
+				-webkit-transform-origin:50% 50%;
+				-webkit-animation-iteration-count: 0.5;
+				-webkit-animation-timing-function: linear;
+			}
+			#type:hover {
+				 -webkit-animation: neon3 1.5s ease-in-out infinite alternate;
+				-webkit-animation-delay: 1s;
+				 -moz-animation: neon3 1.5s ease-in-out infinite alternate;
+				animation: neon3 1.5s ease-in-out infinite alternate;
+				animation-delay: 1s;
+			}
+			.blurb{
+				border-radius: 1em;
+				background-color:rgba(89, 89, 89, 0.5);
+				color:white;
+				text-align:center;
+				padding: 100px 30px;
+				margin-left: 30%;
+				width: 50%;
+				margin-top: 5%;
+				font-size: 2vmin;
+				font-family: 'Space Mono', monospace;
+			}
+		</STYLE>
+	</HEAD>
+	<BODY>
+		<nav>
+		<ul>
+			<li><a href="/">Home</a></li>
+			<li class="button"><a href="/about">About</a></li>
+			<li><a href="/data">Data</a></li>
+		</ul>
+		</nav>
+		<table>
+			<TR>
+				<div class = "row">
+					<div class= "cell">
+						<img class="tower" src= "{{ url_for('static', filename = 'images/justTower.png') }}"</img>
+						<img class = "shake" id="plant" src= "{{ url_for('static', filename = 'images/plants.png') }}">
+						</img>
+					
+						<div id = "type">
+							<div class = "cushion">Project Greenlight</div>	
+						</div>
+						<div class="blurb">
+							Between seven 42 students, the lab of 42 Silicon Valley just got a little more green in more ways than one. 
+							</br>
+							</br>
+							You can find them at any one of the following e-mails:
+							</br>
+							avongdar@student.42.us.org
+							</br>
+							kcheung@student.42.us.org
+							</br>
+							sdarsie@student.42.us.org
+							</br>
+							mmorel@student.42.us.org
+							</br>
+							irhett@student.42.us.org
+							</br>
+							tchan@student.42.us.org
+							</br>
+							cfu@student.42.us.org
+						</div>
+						
+					</div>
+			</TR>
+		</table>
+	</BODY>
+</HTML>
