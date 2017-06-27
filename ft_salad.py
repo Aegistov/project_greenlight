@@ -1,4 +1,3 @@
-import ip_address
 import threading
 import eventlet
 import serial
@@ -189,8 +188,8 @@ def dataPi():
 
 @app.route("/sensor_data")
 def graphDisplay():
-    # populateGraph()
-    return render_template("data.html")
+    populateGraph()
+    return render_template("sensor_data.html")
 
 def populateGraph():
     conn = sqlite3.connect("sensor_data.db")
@@ -221,7 +220,7 @@ def populateGraph():
     )
 
     fig = dict(data=data, layout=layout)
-    py.iplot(fig, filename = "humidity_graph.html")
+    py.plot(fig, filename = "humidity_graph.html")
     # graph_loc = os.path.join(
     # os.path.dirname(os.path.realpath(__file__)),
     # "humidity_graph.html"
@@ -245,12 +244,6 @@ def close_connection(exception):
         print ('Closing Connection')
         db.close()
 
-def ip_display(ip):
-    while True:
-      ser.write(b'IP: ')
-      ser.write(ip.encode())
-      # sleep(60)
-
 dev = False
 ser = False
 try:
@@ -261,12 +254,10 @@ except:
     print("Couldn't find any devices.")
 
 eventlet.spawn(listen)
-eventlet.spawn(ip_display(ip_address.display()))
 
 if __name__ == "__main__":
     # if not DATABASE:
     #     print('Initializing db')
     #     init_db()
     print('Starting app')
-    print(ip_address.display())
     app.run(debug=True)
