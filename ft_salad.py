@@ -63,9 +63,14 @@ def listen():
     if ser:
         while True:
             if gmtime().tm_min == min_check + 1:
+                read_serial = ser.readline()
+                read_serial = read_serial.decode("utf-8")
+                print("Read serial data")
+                print(read_serial)
+                split = read_serial.split(',');
                 try:
                     h_minute_values.append(float(split[0]))
-                    time_taken.append(strftime("%Y-%m-%d %H:%M:%S", gmtime()))
+                    # time_taken.append(strftime("%Y-%m-%d %H:%M:%S", gmtime()))
                 except (RuntimeError, TypeError, NameError):
                     print("Could not convert to float!")
                     continue
@@ -82,15 +87,18 @@ def listen():
             if gmtime().tm_min == test_check + 5:
                 hum = hrlyAvg(h_minute_values)
                 temp = hrlyAvg(t_minute_values)
+                print("Averages")
+                print(hum)
+                print(temp)
                 with app.app_context():
 
                     #Code below for debugging purposes
                     hum_record = get_db().execute('SELECT humidity FROM humidity ORDER BY time DESC')
-                    hum = hum_record.fetchall()
+                    hum_test = hum_record.fetchall()
                     hum_record.close()
-                    f = open('out.txt', w)
+                    f = open('out.txt', 'w')
                     f.write("\n\n\n\n Latest Humidity Readings")
-                    f.write(hum)
+                    f.write(str(hum_test))
                     #Code above for debugging purposes
 
                     db = get_db()    
@@ -113,9 +121,9 @@ def listen():
 
                     #Code below for debugging purposes
                     f.write("\n\n\n\n\nValues stored in h_minute_values")
-                    f.write(h_minute_values)
+                    f.write(str(h_minute_values))
                     f.write("\n\n\n\n\nValues stored in t_minute_values")
-                    f.write(t_minute_values)
+                    f.write(str(t_minute_values))
                     f.close()
                     #Code above for debugging purposes
 
@@ -134,6 +142,8 @@ def listen():
                     # for row2 in cur.execute('SELECT * FROM humidity'):
                     #     print ('Hum')
                     #     print (row2)
+                    h_minute_values = []
+                    t_minute_values = []
                     # hour_check = hour_check + 1
                     test_check = test_check + 5
 
@@ -178,6 +188,10 @@ def dataPi():
     return render_template('data.html', humidity=hum, temperature=temp, time_taken=time_taken)
 
 @app.route("/sensor_data")
+def graphDisplay():
+    # populateGraph()
+    return render_template("data.html")
+
 def populateGraph():
     conn = sqlite3.connect("sensor_data.db")
     conn.row_factory = sqlite3.Row
@@ -207,17 +221,16 @@ def populateGraph():
     )
 
     fig = dict(data=data, layout=layout)
-    plotly.offline.plot(fig, filename = "humidity_graph.html")
-    graph_loc = os.path.join(
-    os.path.dirname(os.path.realpath(__file__)),
-    "humidity_graph.html"
-    )
-    new_loc = "/templates/humidity_graph.html" #os.path.join(
+    py.iplot(fig, filename = "humidity_graph.html")
+    # graph_loc = os.path.join(
+    # os.path.dirname(os.path.realpath(__file__)),
+    # "humidity_graph.html"
+    # )
+    # new_loc = "/templates/humidity_graph.html" #os.path.join(
     # os.path.dirname(os.path.realpath(__file__)),
     # "/templates/humidity_graph.html"
     # )
-    os.rename(graph_loc, new_loc)
-    return render_template('templates/humidity_graph.html')
+    # os.rename(graph_loc, new_loc)
 
 def hrlyAvg(data):
     sum = 0
@@ -234,20 +247,21 @@ def close_connection(exception):
 
 def ip_display(ip):
     while True:
-      ser.write('IP: ')
-      ser.write(ip)
-      sleep(60)
+      ser.write(b'IP: ')
+      ser.write(ip.encode())
+      # sleep(60)
 
 dev = False
 ser = False
 try:
-    dev = subprocess.check_output('ls /dev/ttyACM*', shell=True)
+    dev = subprocess.check_output('ls /dev/ttyACM*', shell=True).decode('utf-8')
+    print(dev)
     ser = serial.Serial(dev.strip(), 9600)
 except:
     print("Couldn't find any devices.")
 
 eventlet.spawn(listen)
-eventlet.spawn(ip_display)
+eventlet.spawn(ip_display(ip_address.display()))
 
 if __name__ == "__main__":
     # if not DATABASE:
