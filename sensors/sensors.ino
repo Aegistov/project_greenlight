@@ -16,6 +16,7 @@ int           distance = 0;
 long          duration = 0;
 unsigned long interval = 10000;
 unsigned long prev_millis = 0;
+String          a;
 
 // initialize the library with the numbers of the interface pins
 LiquidCrystal lcd(13, 12, 11, 10, 9, 8);
@@ -25,7 +26,12 @@ void setup() {
   Serial.begin(9600);
   lcd.begin(16, 2);
   lcd.print("Initialized...");
-  a = Serial.readString();  
+  a = Serial.readString();
+  if (a[0] == 'I')
+  {
+    lcd.setCursor(0, 1);
+    lcd.print(a);
+  }
   lcd.setCursor(0, 1);  
   lcd.print(a);
   delay(2000);
@@ -68,7 +74,13 @@ void loop() {
 
   duration = pulseIn(echo_pin, HIGH);
   distance = (duration * 0.034) / 2;
-  
+  a = Serial.readString();
+  if (a[0] == 'I')
+  {
+    lcd.setCursor(0, 1);
+    lcd.print(a);
+    delay(5000);
+  }
   lcd.setCursor(0, 1);
   lcd.print("Humidity:    ");
   lcd.print((int)DHT.humidity);
