@@ -1,3 +1,4 @@
+import ip_address
 import threading
 import eventlet
 import serial
@@ -231,6 +232,12 @@ def close_connection(exception):
         print ('Closing Connection')
         db.close()
 
+def ip_display(ip):
+    while True:
+      ser.write('IP: ')
+      ser.write(ip)
+      sleep(60)
+
 dev = False
 ser = False
 try:
@@ -240,10 +247,12 @@ except:
     print("Couldn't find any devices.")
 
 eventlet.spawn(listen)
+eventlet.spawn(ip_display)
 
 if __name__ == "__main__":
     # if not DATABASE:
     #     print('Initializing db')
     #     init_db()
     print('Starting app')
+    print(ip_address.display())
     app.run(debug=True)

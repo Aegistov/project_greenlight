@@ -22,15 +22,18 @@ LiquidCrystal lcd(13, 12, 11, 10, 9, 8);
 
 void setup() {
   // set up the LCD's number of columns and rows:
+  Serial.begin(9600);
   lcd.begin(16, 2);
   lcd.print("Initialized...");
+  a = Serial.readString();  
+  lcd.setCursor(0, 1);  
+  lcd.print(a);
   delay(2000);
   pinMode(red_pin, OUTPUT);
   pinMode(green_pin, OUTPUT);
   pinMode(blue_pin, OUTPUT);
   pinMode(trig_pin, OUTPUT);
   pinMode(echo_pin, INPUT);
-  Serial.begin(9600);
 }
 
 void loop() {
