@@ -8,6 +8,7 @@ import sys
 import sqlite3
 import plotly
 import plotly.plotly as py
+import plotly.tools as tls
 import plotly.graph_objs as go
 
 eventlet.monkey_patch()
@@ -220,7 +221,9 @@ def populateGraph():
     )
 
     fig = dict(data=data, layout=layout)
-    py.plot(fig, filename = "humidity_graph.html")
+    graph = py.plot(fig, filename = "humidity_graph.html")
+    
+    print(tls.get_embed(graph))
     # graph_loc = os.path.join(
     # os.path.dirname(os.path.realpath(__file__)),
     # "humidity_graph.html"
