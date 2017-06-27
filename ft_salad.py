@@ -189,8 +189,8 @@ def dataPi():
 
 @app.route("/sensor_data")
 def graphDisplay():
-    populateGraph()
-    return render_template("sensor_data.html")
+    # populateGraph()
+    return render_template("sensor_data.html", graph=populateGraph())
 
 def populateGraph():
     conn = sqlite3.connect("sensor_data.db")
@@ -223,7 +223,7 @@ def populateGraph():
     fig = dict(data=data, layout=layout)
     graph = py.plot(fig, filename = "humidity_graph.html")
     
-    print(tls.get_embed(graph))
+    return (tls.get_embed(graph))
     # graph_loc = os.path.join(
     # os.path.dirname(os.path.realpath(__file__)),
     # "humidity_graph.html"
