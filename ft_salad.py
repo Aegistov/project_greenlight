@@ -38,7 +38,6 @@ def get_db():
     # with app.app_context():
     db = getattr(g, "_database", None)
     if db is None:
-        print ('db is None')
         db = g._database = sqlite3.connect(DATABASE)
         print ('Connection established')
     return db
@@ -193,7 +192,7 @@ def graphDisplay():
     return render_template("sensor_data.html", graph=populateGraph())
 
 def populateGraph():
-    conn = sqlite3.connect("sensor_data.db")
+    conn = get_db()
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
     c.execute("select humidity from humidity where strftime('%d', time) > '25' and strftime('%d', time) < '31'")
@@ -221,7 +220,7 @@ def populateGraph():
     )
 
     fig = dict(data=data, layout=layout)
-    graph = py.plot(fig, filename = "humidity_graph.html")
+    graph = py.plot(fig, filename = "humidity_graph.html", auto_open=False)
     
     return (tls.get_embed(graph))
     # graph_loc = os.path.join(
