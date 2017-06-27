@@ -104,7 +104,9 @@ void loop() {
   }
   
   Serial.print(DHT.humidity);
+  Serial.print(',');
   Serial.print(f);
+  Serial.print(',');
   Serial.println(distance);
   delay(2000);
 }
