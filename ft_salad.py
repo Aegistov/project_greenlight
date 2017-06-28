@@ -216,11 +216,15 @@ def populateGraph():
     layout = dict(
         title = "Humidity History",
         xaxis = dict(
-            range = ['2017-06-23','2017-06-30'])
+            range = ['2017-06-23','2017-06-30'],
+            autotick = False,
+            tick0 = 0,
+            dtick = 6
+            )
     )
 
     fig = dict(data=data, layout=layout)
-    graph = plotly.offline.plot(fig, filename = "humidity_graph.html", output_type='div', auto_open=False)
+    graph = plotly.offline.plot(fig, show_link=False, filename="humidity_graph.html", output_type='div', auto_open=False)
     
     return (graph)
     # graph_loc = os.path.join(
