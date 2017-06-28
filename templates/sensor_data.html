@@ -5,11 +5,11 @@
 </head>
 <body>
 <div id="div1">Hello World!</div>
-<!-- {{ graph }} -->
-<script type="text/javascript">
+{{ graph | safe }}
+<!-- <script type="text/javascript">
 var	test = {{ graph }}
 	document.write(test)
-</script>
+</script> -->
 <!-- <iframe id="igraph" scrolling="no" style="border:none;" seamless="seamless" src="https://plot.ly/~Aegistov/0.embed" height="525" width="100%"></iframe> -->
 <!-- {{ graph }}
 <script type="text/javascript">
