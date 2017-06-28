@@ -3,13 +3,14 @@ import eventlet
 import serial
 import subprocess
 import os
-import csv
 import sys
 import sqlite3
 import plotly
 import plotly.plotly as py
 import plotly.tools as tls
 import plotly.graph_objs as go
+import db_func as dbf
+import ser_listen as sl
 
 eventlet.monkey_patch()
 
@@ -34,117 +35,117 @@ DATABASE = os.path.join(
     os.path.dirname(os.path.realpath(__file__)), "sensor_data.db"
 )
 
-def get_db():
-    # with app.app_context():
-    db = getattr(g, "_database", None)
-    if db is None:
-        db = g._database = sqlite3.connect(DATABASE)
-        print ('Connection established')
-    return db
+# def get_db():
+#     # with app.app_context():
+#     db = getattr(g, "_database", None)
+#     if db is None:
+#         db = g._database = sqlite3.connect(DATABASE)
+#         print ('Connection established')
+#     return db
 
-def init_db():
-    with app.app_context():
-        db = get_db()
-        with app.open_resource('schema.sql', mode='r') as file:
-            db.cursor().executescript(file.read())
-        db.commit()
+# def init_db():
+#     with app.app_context():
+#         db = get_db()
+#         with app.open_resource('schema.sql', mode='r') as file:
+#             db.cursor().executescript(file.read())
+#         db.commit()
 
-def listen():
-    global ser, data_file
-    temp = 0
-    hum = 0
-    time_taken = []
-    min_check = gmtime().tm_min
-    test_check = gmtime().tm_min
-    hour_check = gmtime().tm_hour
-    t_minute_values = []
-    h_minute_values = []
-    if ser:
-        while True:
-            if gmtime().tm_min == min_check + 1:
-                read_serial = ser.readline()
-                read_serial = read_serial.decode("utf-8")
-                print("Read serial data")
-                print(read_serial)
-                split = read_serial.split(',');
-                try:
-                    h_minute_values.append(float(split[0]))
-                    # time_taken.append(strftime("%Y-%m-%d %H:%M:%S", gmtime()))
-                except (RuntimeError, TypeError, NameError):
-                    print("Could not convert to float!")
-                    continue
-                try:
-                    t_minute_values.append(float(split[1]))
-                except (RuntimeError, TypeError, NameError):
-                    print("Could not convert to float!")
-                    continue
-                print (h_minute_values)
-                print (t_minute_values)
-                min_check = min_check + 1
-                sleep(2)
-            # if gmtime().tm_hour == hour_check + 1:
-            if gmtime().tm_min == test_check + 5:
-                hum = hrlyAvg(h_minute_values)
-                temp = hrlyAvg(t_minute_values)
-                print("Averages")
-                print(hum)
-                print(temp)
-                with app.app_context():
+# def listen():
+#     global ser, data_file
+#     temp = 0
+#     hum = 0
+#     time_taken = []
+#     min_check = gmtime().tm_min
+#     test_check = gmtime().tm_min
+#     hour_check = gmtime().tm_hour
+#     t_minute_values = []
+#     h_minute_values = []
+#     if ser:
+#         while True:
+#             if gmtime().tm_min == min_check + 1:
+#                 read_serial = ser.readline()
+#                 read_serial = read_serial.decode("utf-8")
+#                 print("Read serial data")
+#                 print(read_serial)
+#                 split = read_serial.split(',');
+#                 try:
+#                     h_minute_values.append(float(split[0]))
+#                     # time_taken.append(strftime("%Y-%m-%d %H:%M:%S", gmtime()))
+#                 except (RuntimeError, TypeError, NameError):
+#                     print("Could not convert to float!")
+#                     continue
+#                 try:
+#                     t_minute_values.append(float(split[1]))
+#                 except (RuntimeError, TypeError, NameError):
+#                     print("Could not convert to float!")
+#                     continue
+#                 print (h_minute_values)
+#                 print (t_minute_values)
+#                 min_check = min_check + 1
+#                 sleep(2)
+#             # if gmtime().tm_hour == hour_check + 1:
+#             if gmtime().tm_min == test_check + 5:
+#                 hum = hrlyAvg(h_minute_values)
+#                 temp = hrlyAvg(t_minute_values)
+#                 print("Averages")
+#                 print(hum)
+#                 print(temp)
+#                 with app.app_context():
 
-                    #Code below for debugging purposes
-                    hum_record = get_db().execute('SELECT humidity FROM humidity ORDER BY time DESC')
-                    hum_test = hum_record.fetchall()
-                    hum_record.close()
-                    f = open('out.txt', 'w')
-                    f.write("\n\n\n\n Latest Humidity Readings")
-                    f.write(str(hum_test))
-                    #Code above for debugging purposes
+#                     #Code below for debugging purposes
+#                     hum_record = get_db().execute('SELECT humidity FROM humidity ORDER BY time DESC')
+#                     hum_test = hum_record.fetchall()
+#                     hum_record.close()
+#                     f = open('out.txt', 'w')
+#                     f.write("\n\n\n\n Latest Humidity Readings")
+#                     f.write(str(hum_test))
+#                     #Code above for debugging purposes
 
-                    db = get_db()    
-                    cur = db.cursor()
-                    # read_serial = ser.readline()
-                    # print(read_serial)
-                    # # read_serial = read_serial.strip()
-                    # split = read_serial.split(',');
-                    # try:
-                    #     h_minute_values.append(float(split[0]))
-                    #     time_taken.append(strftime("%Y-%m-%d %H:%M:%S", gmtime()))
-                    # except (RuntimeError, TypeError, NameError):
-                    #     print("Could not convert to float!")
-                    #     continue
-                    # try:
-                    #     t_minute_values.append(float(split[1]))
-                    # except (RuntimeError, TypeError, NameError):
-                    #     print("Could not convert to float!")
-                    #     continue
+#                     db = get_db()    
+#                     cur = db.cursor()
+#                     # read_serial = ser.readline()
+#                     # print(read_serial)
+#                     # # read_serial = read_serial.strip()
+#                     # split = read_serial.split(',');
+#                     # try:
+#                     #     h_minute_values.append(float(split[0]))
+#                     #     time_taken.append(strftime("%Y-%m-%d %H:%M:%S", gmtime()))
+#                     # except (RuntimeError, TypeError, NameError):
+#                     #     print("Could not convert to float!")
+#                     #     continue
+#                     # try:
+#                     #     t_minute_values.append(float(split[1]))
+#                     # except (RuntimeError, TypeError, NameError):
+#                     #     print("Could not convert to float!")
+#                     #     continue
 
-                    #Code below for debugging purposes
-                    f.write("\n\n\n\n\nValues stored in h_minute_values")
-                    f.write(str(h_minute_values))
-                    f.write("\n\n\n\n\nValues stored in t_minute_values")
-                    f.write(str(t_minute_values))
-                    f.close()
-                    #Code above for debugging purposes
+#                     #Code below for debugging purposes
+#                     f.write("\n\n\n\n\nValues stored in h_minute_values")
+#                     f.write(str(h_minute_values))
+#                     f.write("\n\n\n\n\nValues stored in t_minute_values")
+#                     f.write(str(t_minute_values))
+#                     f.close()
+#                     #Code above for debugging purposes
 
-                    time_taken = strftime("%Y-%m-%d %H:%M:%S", gmtime())
-                    # print ('Last Entry')
-                    # print (h_minute_values[-1])
-                    # print (t_minute_values[-1])
-                    # if h_minute_values[-1] < 100:
-                    cur.execute('INSERT INTO humidity VALUES (?,?)', (time_taken, hum))
-                    # if t_minute_values[-1] < 100:
-                    cur.execute('INSERT INTO temperature VALUES (?,?)', (time_taken, temp))
-                    db.commit()
-                    # for row in cur.execute('SELECT * FROM temperature'):
-                    #     print ('Temp')
-                    #     print (row)
-                    # for row2 in cur.execute('SELECT * FROM humidity'):
-                    #     print ('Hum')
-                    #     print (row2)
-                    h_minute_values = []
-                    t_minute_values = []
-                    # hour_check = hour_check + 1
-                    test_check = test_check + 5
+#                     time_taken = strftime("%Y-%m-%d %H:%M:%S", gmtime())
+#                     # print ('Last Entry')
+#                     # print (h_minute_values[-1])
+#                     # print (t_minute_values[-1])
+#                     # if h_minute_values[-1] < 100:
+#                     cur.execute('INSERT INTO humidity VALUES (?,?)', (time_taken, hum))
+#                     # if t_minute_values[-1] < 100:
+#                     cur.execute('INSERT INTO temperature VALUES (?,?)', (time_taken, temp))
+#                     db.commit()
+#                     # for row in cur.execute('SELECT * FROM temperature'):
+#                     #     print ('Temp')
+#                     #     print (row)
+#                     # for row2 in cur.execute('SELECT * FROM humidity'):
+#                     #     print ('Hum')
+#                     #     print (row2)
+#                     h_minute_values = []
+#                     t_minute_values = []
+#                     # hour_check = hour_check + 1
+#                     test_check = test_check + 5
 
 @app.route("/")
 def index():
@@ -160,11 +161,11 @@ def dataPi():
     hum = 0
     time_taken = 0
     while True:
-        h_records = get_db().execute('SELECT * FROM humidity ORDER BY time DESC')
+        h_records = dbf.get_db(DATABASE).execute('SELECT * FROM humidity ORDER BY time DESC')
         hum_single = h_records.fetchone()
         h_records.close()
         hum = hum_single[1]
-        t_records = get_db().execute('SELECT * FROM temperature ORDER BY time DESC')
+        t_records = dbf.get_db(DATABASE).execute('SELECT * FROM temperature ORDER BY time DESC')
         temp_single = t_records.fetchone()
         t_records.close()
         temp = temp_single[1]
@@ -191,42 +192,42 @@ def graphDisplay():
     # populateGraph()
     return render_template("sensor_data.html", graph=populateGraph())
 
-def populateGraph():
-    conn = get_db()
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-    c.execute("select humidity from humidity where strftime('%d', time) > '25' and strftime('%d', time) < '31'")
-    r = c.fetchall()
-    hum = []
-    for member in r:
-        hum.append(member[0])
-    c.execute("select strftime('%m-%d %H:%M', time) from humidity where strftime('%d', time) > '25' and strftime('%d', time) < '31'")
-    r = c.fetchall()
-    time = []
-    for member in r:
-        time.append(member[0])
-    c.close()
-    trace_high = go.Scatter(
-                    x=time,
-                    y=hum,
-                    name = "AAPL High",
-                    line = dict(color = '#17BECF'),
-                    opacity = 0.8)
-    data = [trace_high]
-    layout = dict(
-        title = "Humidity History",
-        xaxis = dict(
-            range = ['2017-06-23','2017-06-30'],
-            autotick = False,
-            tick0 = 0,
-            dtick = 6
-            )
-    )
+# def populateGraph():
+#     conn = get_db()
+#     conn.row_factory = sqlite3.Row
+#     c = conn.cursor()
+#     c.execute("select humidity from humidity where strftime('%d', time) > '25' and strftime('%d', time) < '31'")
+#     r = c.fetchall()
+#     hum = []
+#     for member in r:
+#         hum.append(member[0])
+#     c.execute("select strftime('%m-%d %H:%M', time) from humidity where strftime('%d', time) > '25' and strftime('%d', time) < '31'")
+#     r = c.fetchall()
+#     time = []
+#     for member in r:
+#         time.append(member[0])
+#     c.close()
+#     trace_high = go.Scatter(
+#                     x=time,
+#                     y=hum,
+#                     name = "AAPL High",
+#                     line = dict(color = '#17BECF'),
+#                     opacity = 0.8)
+#     data = [trace_high]
+#     layout = dict(
+#         title = "Humidity History",
+#         xaxis = dict(
+#             range = ['2017-06-23','2017-06-30'],
+#             autotick = False,
+#             tick0 = 0,
+#             dtick = 6
+#             )
+#     )
 
-    fig = dict(data=data, layout=layout)
-    graph = plotly.offline.plot(fig, show_link=False, filename="humidity_graph.html", output_type='div', auto_open=False)
+    # fig = dict(data=data, layout=layout)
+    # graph = plotly.offline.plot(fig, show_link=False, filename="humidity_graph.html", output_type='div', auto_open=False)
     
-    return (graph)
+    # return (graph)
     # graph_loc = os.path.join(
     # os.path.dirname(os.path.realpath(__file__)),
     # "humidity_graph.html"
@@ -259,11 +260,11 @@ try:
 except:
     print("Couldn't find any devices.")
 
-eventlet.spawn(listen)
+eventlet.spawn(sl.listen(ser))
 
 if __name__ == "__main__":
-    # if not DATABASE:
-    #     print('Initializing db')
-    #     init_db()
+    if not DATABASE:
+        print('Initializing db')
+        init_db(DATABASE)
     print('Starting app')
     app.run(debug=True)
