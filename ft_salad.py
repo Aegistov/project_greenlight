@@ -220,9 +220,9 @@ def populateGraph():
     )
 
     fig = dict(data=data, layout=layout)
-    graph = py.plot(fig, filename = "humidity_graph.html", auto_open=False)
+    graph = plotly.offline.plot(fig, filename = "humidity_graph.html", output_type='div', auto_open=False)
     
-    return (tls.get_embed(graph))
+    return (graph)
     # graph_loc = os.path.join(
     # os.path.dirname(os.path.realpath(__file__)),
     # "humidity_graph.html"
