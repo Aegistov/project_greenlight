@@ -226,7 +226,7 @@ def populateGraph():
     )
 
     fig = dict(data=data, layout=layout)
-    graph = ploty.offline.plot(fig, show_link=False, filename = "humidity_graph.html", output_type='div',  auto_open=False)
+    graph = plotly.offline.plot(fig, show_link=False, filename = "humidity_graph.html", output_type='div',  auto_open=False)
     
     return (graph)
     # graph_loc = os.path.join(
