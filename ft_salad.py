@@ -3,7 +3,6 @@ import eventlet
 import serial
 import subprocess
 import os
-import csv
 import sys
 import sqlite3
 import plotly
@@ -20,11 +19,6 @@ from time import time, gmtime, strftime, sleep
 app = Flask(__name__)
 fieldnames = ['temperature', 'humidity', 'time']
 data = []
-data_file = os.path.join(
-    os.path.dirname(os.path.realpath(__file__)),
-    "sensor_data.csv"
-)
-
 output_logs = os.path.join(
     os.path.dirname(os.path.realpath(__file__)),
     "output.logs"
@@ -55,7 +49,6 @@ def listen():
     hum = 0
     time_taken = []
     min_check = gmtime().tm_min
-    test_check = gmtime().tm_min
     hour_check = gmtime().tm_hour
     t_minute_values = []
     h_minute_values = []
@@ -82,13 +75,9 @@ def listen():
                 print (t_minute_values)
                 min_check = min_check + 1
                 sleep(2)
-            # if gmtime().tm_hour == hour_check + 1:
-            if gmtime().tm_min == test_check + 5:
+            if gmtime().tm_hour == hour_check + 1:
                 hum = hrlyAvg(h_minute_values)
                 temp = hrlyAvg(t_minute_values)
-                print("Averages")
-                print(hum)
-                print(temp)
                 with app.app_context():
 
                     #Code below for debugging purposes
@@ -102,23 +91,7 @@ def listen():
 
                     db = get_db()    
                     cur = db.cursor()
-                    # read_serial = ser.readline()
-                    # print(read_serial)
-                    # # read_serial = read_serial.strip()
-                    # split = read_serial.split(',');
-                    # try:
-                    #     h_minute_values.append(float(split[0]))
-                    #     time_taken.append(strftime("%Y-%m-%d %H:%M:%S", gmtime()))
-                    # except (RuntimeError, TypeError, NameError):
-                    #     print("Could not convert to float!")
-                    #     continue
-                    # try:
-                    #     t_minute_values.append(float(split[1]))
-                    # except (RuntimeError, TypeError, NameError):
-                    #     print("Could not convert to float!")
-                    #     continue
-
-                    #Code below for debugging purposes
+	            #Code below for debugging purposes
                     f.write("\n\n\n\n\nValues stored in h_minute_values")
                     f.write(str(h_minute_values))
                     f.write("\n\n\n\n\nValues stored in t_minute_values")
@@ -127,24 +100,12 @@ def listen():
                     #Code above for debugging purposes
 
                     time_taken = strftime("%Y-%m-%d %H:%M:%S", gmtime())
-                    # print ('Last Entry')
-                    # print (h_minute_values[-1])
-                    # print (t_minute_values[-1])
-                    # if h_minute_values[-1] < 100:
                     cur.execute('INSERT INTO humidity VALUES (?,?)', (time_taken, hum))
-                    # if t_minute_values[-1] < 100:
                     cur.execute('INSERT INTO temperature VALUES (?,?)', (time_taken, temp))
                     db.commit()
-                    # for row in cur.execute('SELECT * FROM temperature'):
-                    #     print ('Temp')
-                    #     print (row)
-                    # for row2 in cur.execute('SELECT * FROM humidity'):
-                    #     print ('Hum')
-                    #     print (row2)
                     h_minute_values = []
                     t_minute_values = []
-                    # hour_check = hour_check + 1
-                    test_check = test_check + 5
+                    hour_check = hour_check + 1
 
 @app.route("/")
 def index():
@@ -160,22 +121,11 @@ def dataPi():
     hum = 0
     time_taken = 0
     while True:
-        #h_records = get_db().execute('SELECT * FROM humidity ORDER BY time DESC')
-        #hum_single = h_records.fetchone()
-        #h_records.close()
-        #hum = hum_single[1]
-        #t_records = get_db().execute('SELECT * FROM temperature ORDER BY time DESC')
-        #temp_single = t_records.fetchone()
-        #t_records.close()
-        #temp = temp_single[1]
-
-        # Use code below
          read_serial = ser.readline()
          print(read_serial)
          split = read_serial.split(',');
          try:
              hum = float(split[0])
-        #    time_taken.append(strftime("%Y-%m-%d %H:%M:%S", gmtime()))
          except (RuntimeError, TypeError, NameError):
              print("Could not convert to float!")
              continue
@@ -186,7 +136,7 @@ def dataPi():
              continue
          time_taken = strftime("%H:%M:%S %m-%d-%Y")
          break
-    return render_template('data.html', humidity=hum, temperature=temp, time_taken=time_taken)
+    return render_template('data.html', humidity=hum, temperature=temp, time_taken=time_taken, graph=populateGraph())
 
 @app.route("/sensor_data")
 def graphDisplay():
@@ -198,20 +148,20 @@ def populateGraph():
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
     c.execute("select humidity from humidity where strftime('%d', time) > '25' and strftime('%d', time) < '31'")
-    r = c.fetchall()
+    hum_data = c.fetchall()
     hum = []
-    for member in r:
+    for member in hum_data:
         hum.append(member[0])
     c.execute("select strftime('%m-%d %H:%M', time) from humidity where strftime('%d', time) > '25' and strftime('%d', time) < '31'")
-    r = c.fetchall()
+    hum_time = c.fetchall()
     time = []
-    for member in r:
+    for member in hum_time:
         time.append(member[0])
     c.close()
     trace_high = go.Scatter(
                     x=time,
                     y=hum,
-                    name = "AAPL High",
+                    name = "Humidity",
                     line = dict(color = '#17BECF'),
                     opacity = 0.8)
     data = [trace_high]
@@ -229,15 +179,6 @@ def populateGraph():
     graph = plotly.offline.plot(fig, show_link=False, filename="humidity_graph.html", output_type='div', auto_open=False)
     
     return (graph)
-    # graph_loc = os.path.join(
-    # os.path.dirname(os.path.realpath(__file__)),
-    # "humidity_graph.html"
-    # )
-    # new_loc = "/templates/humidity_graph.html" #os.path.join(
-    # os.path.dirname(os.path.realpath(__file__)),
-    # "/templates/humidity_graph.html"
-    # )
-    # os.rename(graph_loc, new_loc)
 
 def hrlyAvg(data):
     sum = 0
@@ -264,8 +205,8 @@ except:
 eventlet.spawn(listen)
 
 if __name__ == "__main__":
-    # if not DATABASE:
-    #     print('Initializing db')
-    #     init_db()
+    if not DATABASE:
+        print('Initializing db')
+        init_db()
     print('Starting app')
     app.run(debug=True)
