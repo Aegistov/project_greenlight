@@ -160,30 +160,32 @@ def dataPi():
     hum = 0
     time_taken = 0
     while True:
-        h_records = get_db().execute('SELECT * FROM humidity ORDER BY time DESC')
-        hum_single = h_records.fetchone()
-        h_records.close()
-        hum = hum_single[1]
-        t_records = get_db().execute('SELECT * FROM temperature ORDER BY time DESC')
-        temp_single = t_records.fetchone()
-        t_records.close()
-        temp = temp_single[1]
+        #h_records = get_db().execute('SELECT * FROM humidity ORDER BY time DESC')
+        #hum_single = h_records.fetchone()
+        #h_records.close()
+        #hum = hum_single[1]
+        #t_records = get_db().execute('SELECT * FROM temperature ORDER BY time DESC')
+        #temp_single = t_records.fetchone()
+        #t_records.close()
+        #temp = temp_single[1]
 
         # Use code below
-        # read_serial = ser.readline()
-        # print(read_serial)
-        # split = read_serial.split(',');
-        # if type(float(split[0])) is float:
-        #     hum = split[0]
-        # else:
-        #     continue
-        # if type(float(split[1])) is float:
-        #     temp = split[1]
-        # else:
-        #     continue
-
-        time_taken = temp_single[0]
-        break
+         read_serial = ser.readline()
+         print(read_serial)
+         split = read_serial.split(',');
+         try:
+             hum = float(split[0])
+        #    time_taken.append(strftime("%Y-%m-%d %H:%M:%S", gmtime()))
+         except (RuntimeError, TypeError, NameError):
+             print("Could not convert to float!")
+             continue
+         try:
+              temp = float(split[1])
+         except:
+             print("Could not convert to float!")
+             continue
+         time_taken = strftime("%H:%M:%S %m-%d-%Y")
+         break
     return render_template('data.html', humidity=hum, temperature=temp, time_taken=time_taken)
 
 @app.route("/sensor_data")
