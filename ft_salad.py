@@ -222,13 +222,13 @@ def populateGraph():
             autotick = False,
             tick0 = 0,
             dtick = 6
-)
+            )
     )
 
     fig = dict(data=data, layout=layout)
-    graph = py.plot(fig, show_link=False, filename = "humidity_graph.html", output_type='div',  auto_open=False)
+    graph = ploty.offline.plot(fig, show_link=False, filename = "humidity_graph.html", output_type='div',  auto_open=False)
     
-    return (tls.get_embed(graph))
+    return (graph)
     # graph_loc = os.path.join(
     # os.path.dirname(os.path.realpath(__file__)),
     # "humidity_graph.html"
