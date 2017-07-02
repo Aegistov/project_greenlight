@@ -136,14 +136,13 @@ def dataPi():
              continue
          time_taken = strftime("%H:%M:%S %m-%d-%Y")
          break
-    return render_template('data.html', humidity=hum, temperature=temp, time_taken=time_taken, graph=populateGraph())
+    return render_template('data.html', humidity=hum, temperature=temp, time_taken=time_taken)
 
 @app.route("/sensor_data")
 def graphDisplay():
-    # populateGraph()
-    return render_template("sensor_data.html", graph=populateGraph())
+    return render_template("sensor_data.html", h_graph=populateHumGraph())
 
-def populateGraph():
+def populateHumGraph():
     conn = get_db()
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
@@ -154,17 +153,17 @@ def populateGraph():
         hum.append(member[0])
     c.execute("select strftime('%m-%d %H:%M', time) from humidity where strftime('%d', time) > '25' and strftime('%d', time) < '31'")
     hum_time = c.fetchall()
+    c.close()
     time = []
     for member in hum_time:
         time.append(member[0])
-    c.close()
-    trace_high = go.Scatter(
+    trace_hum = go.Scatter(
                     x=time,
                     y=hum,
                     name = "Humidity",
                     line = dict(color = '#17BECF'),
                     opacity = 0.8)
-    data = [trace_high]
+    data = [trace_hum]
     layout = dict(
         title = "Humidity History",
         xaxis = dict(
@@ -174,11 +173,9 @@ def populateGraph():
             dtick = 6
             )
     )
-
     fig = dict(data=data, layout=layout)
-    graph = plotly.offline.plot(fig, show_link=False, filename="humidity_graph.html", output_type='div', auto_open=False)
-    
-    return (graph)
+    h_graph = plotly.offline.plot(fig, show_link=False, filename="humidity_graph.html", output_type='div', auto_open=False)
+    return (h_graph)
 
 def hrlyAvg(data):
     sum = 0
